@@ -19,6 +19,8 @@ class PostJobView(APIView):
     def post(self,request):
 
         user = request.user
+        
+        # checking if user is recruiter or not
         if user.is_staff: 
             serializer = JobSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)                                            # checking if user is recruiter or not
@@ -35,6 +37,8 @@ class MyPostsView(APIView):
     def get(self,request):
         
         user = request.user
+
+        # checking if user is recruiter or not
         if user.is_staff:
             try:  
                 posts = JobDetails.objects.filter(recruiter_id=user.id)                                             
@@ -67,12 +71,12 @@ class JobStatusView(APIView):
 class ViewProfileView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
-    def get(self,request,apllicant_id):
-    
+    def get(self,request,applicant_id):
+     
         user = request.user
 
         if user.is_staff:
-            user = UserDetails.objects.get(id=apllicant_id)
+            user = UserDetails.objects.get(id=applicant_id)
             serializer =UserSerializer(user)                          
             return Response(serializer.data,status=status.HTTP_200_OK)
         return Response({'message':'You need recruiter privileges to perform this action'},status=status.HTTP_403_FORBIDDEN)
@@ -86,7 +90,7 @@ class JobUpdateDeleteView(APIView):
     def patch(self,request,pk): 
 
         user = request.user
-
+        # checking if user is recruiter or not
         if user.is_staff:
 
             try:                       
@@ -109,6 +113,7 @@ class JobUpdateDeleteView(APIView):
 
         user = request.user
 
+        # checking if user is recruiter or not
         if user.is_staff:
 
             try:                               
@@ -132,7 +137,7 @@ class JobListView(generics.ListAPIView):
 
 
 
-# Method to filter jobs
+# Method to filter jobs base on searched field
 class JobFiltersView(generics.ListAPIView):
     queryset = JobDetails.objects.all()
     serializer_class = JobSerializer
@@ -157,7 +162,8 @@ class JobApplyView(APIView):
                 serializer.is_valid(raise_exception=True)
                 job = JobDetails.objects.get(id=request.data['job_id'])      
                 serializer.save(job_id=job,job_title=job.job_title,company=job.company,applicant_id=user,applicant_name=user.name,applicant_email=user.email) 
-                # Incrementing applicant applied for a job
+                
+                # Incrementing 'no_of_applicants' field after successfully applying a job
                 JobDetails.objects.filter(id=request.data['job_id']).update(no_of_applicants=job.no_of_applicants+1)
                 message = {'message':'You have successfully applied for this job'}
                 return Response(message,status=status.HTTP_200_OK)
@@ -167,7 +173,7 @@ class JobApplyView(APIView):
     
 
 
-# Method to view seeker applied jobs
+# Method to view seeker applied jobs,only accessible to seeker
 class JobAppliedView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 

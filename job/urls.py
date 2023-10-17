@@ -10,7 +10,7 @@ urlpatterns = [
     path('applyjob/',JobApplyView.as_view()),
     path('appliedjobs/',JobAppliedView.as_view()),
     path('jobstatus/<int:job_id>/',JobStatusView.as_view()),
-    path('viewprofile/<int:apllicant_id>/',ViewProfileView.as_view()),
+    path('viewprofile/<int:applicant_id>/',ViewProfileView.as_view()),
     path('updatejob/<int:pk>/',JobUpdateDeleteView.as_view()),
 
 ]
